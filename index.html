@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SungJadi — Instant CV Builder</title>
+  <meta name="description" content="Fill in your details, upload a photo, and generate a professional CV in seconds. Free, no sign-up required." />
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+
+<!-- Header contains branding, mobile tabs, and PDF download. -->
+<header class="app-header">
+  <div class="app-header__inner">
+
+    <div class="app-header__brand">
+      <div class="brand-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" fill="url(#logo-g1)"/>
+          <path d="M2 17l10 5 10-5" stroke="url(#logo-g2)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M2 12l10 5 10-5" stroke="url(#logo-g3)" stroke-width="2" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="logo-g1" x1="2" y1="2" x2="22" y2="12"><stop stop-color="#111111"/><stop offset="0.5" stop-color="#555555"/><stop offset="1" stop-color="#999999"/></linearGradient>
+            <linearGradient id="logo-g2" x1="2" y1="17" x2="22" y2="17"><stop stop-color="#111111"/><stop offset="1" stop-color="#555555"/></linearGradient>
+            <linearGradient id="logo-g3" x1="2" y1="12" x2="22" y2="12"><stop stop-color="#555555"/><stop offset="1" stop-color="#999999"/></linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">SungJadi</span>
+        <span class="brand-tagline">Instant CV Builder</span>
+      </div>
+    </div>
+
+    
+    <div class="mobile-tabs" id="mobile-tabs">
+      <button class="mobile-tab active" id="tab-form" data-tab="form">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Input Data
+      </button>
+      <button class="mobile-tab" id="tab-preview" data-tab="preview">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Preview
+      </button>
+    </div>
+
+    <button id="btn-download" class="btn-download" aria-label="Download PDF">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span class="btn-dl-text">Download PDF</span>
+    </button>
+
+  </div>
+</header>
+
+
+<main class="app-main" id="app-main">
+
+  
+  <!-- Form panel collects user input. -->
+  <aside class="form-panel" id="form-panel">
+    <div class="form-scroll" id="form-scroll">
+
+      
+      <section class="fs" id="fs-photo">
+        <div class="fs-head">
+          <span class="fs-num">01</span>
+          <h2 class="fs-title">Photo</h2>
+        </div>
+        <div class="photo-row">
+          <div class="photo-circle" id="photo-circle">
+            <img id="photo-thumb" src="" alt="" class="photo-img hidden" />
+            <div class="photo-ph" id="photo-ph">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            </div>
+          </div>
+          <div class="photo-info">
+            <p class="photo-tip">Automatic 1:1 square cropping</p>
+            <div class="photo-btns">
+              <label for="photo-input" class="btn-sm-outline">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Choose Photo
+              </label>
+              <input type="file" id="photo-input" accept="image/*" class="visually-hidden" />
+              <button id="btn-remove-photo" class="btn-sm-danger hidden">Remove</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      
+      <section class="fs" id="fs-info">
+        <div class="fs-head">
+          <span class="fs-num">02</span>
+          <h2 class="fs-title">Personal Information</h2>
+        </div>
+        <div class="fgrid">
+          <div class="fw span2">
+            <label for="inp-name">Full Name</label>
+            <input type="text" id="inp-name" placeholder="Your Full Name" maxlength="60" autocomplete="name" />
+          </div>
+          <div class="fw">
+            <label for="inp-email">Email</label>
+            <input type="email" id="inp-email" placeholder="you@email.com" autocomplete="email" />
+          </div>
+          <div class="fw">
+            <label for="inp-phone">Phone Number</label>
+            <input type="text" id="inp-phone" placeholder="+62 812 3456 7890" autocomplete="tel" />
+          </div>
+          <div class="fw">
+            <label for="inp-linkedin">LinkedIn URL</label>
+            <input type="text" id="inp-linkedin" placeholder="linkedin.com/in/name" />
+          </div>
+          <div class="fw">
+            <label for="inp-instagram">Instagram</label>
+            <input type="text" id="inp-instagram" placeholder="@handle" />
+          </div>
+        </div>
+      </section>
+
+      
+      <section class="fs" id="fs-profile">
+        <div class="fs-head">
+          <span class="fs-num">03</span>
+          <h2 class="fs-title">Profile</h2>
+        </div>
+        <div class="fw span2">
+          <label for="inp-profile">
+            Professional Summary
+            <span class="chint" id="profile-chars">0 / 400</span>
+          </label>
+          <textarea id="inp-profile" rows="5" maxlength="400" placeholder="Write a concise professional summary..."></textarea>
+        </div>
+      </section>
+
+      
+      <section class="fs" id="fs-exp">
+        <div class="fs-head">
+          <span class="fs-num">04</span>
+          <h2 class="fs-title">Experience / Projects</h2>
+          <button class="btn-add-sec" id="btn-add-exp">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add
+          </button>
+        </div>
+        <div id="exp-entries"></div>
+      </section>
+
+      
+      <section class="fs" id="fs-edu">
+        <div class="fs-head">
+          <span class="fs-num">05</span>
+          <h2 class="fs-title">Education</h2>
+        </div>
+        <div class="spoints">
+          <div class="sp">
+            <label for="edu-0">Entry 1 <span class="chint" id="edu-0-chars">0 / 100</span></label>
+            <input type="text" id="edu-0" maxlength="100" placeholder="Institution Name | Field of Study | Year" />
+          </div>
+          <div class="sp">
+            <label for="edu-1">Entry 2 <span class="opt-tag">optional</span> <span class="chint" id="edu-1-chars">0 / 100</span></label>
+            <input type="text" id="edu-1" maxlength="100" placeholder="Second education entry..." />
+          </div>
+        </div>
+      </section>
+
+      
+      <section class="fs" id="fs-org">
+        <div class="fs-head">
+          <span class="fs-num">06</span>
+          <h2 class="fs-title">Organizations &amp; Volunteer</h2>
+          <button type="button" class="btn-add-sec" id="btn-toggle-org">Remove Section</button>
+        </div>
+        <div class="spoints" id="org-body">
+          <div class="sp">
+            <label for="org-0">Entry 1 <span class="chint" id="org-0-chars">0 / 100</span></label>
+            <input type="text" id="org-0" maxlength="100" placeholder="Organization Name | Role | Year" />
+          </div>
+          <div class="sp">
+            <label for="org-1">Entry 2 <span class="opt-tag">optional</span> <span class="chint" id="org-1-chars">0 / 100</span></label>
+            <input type="text" id="org-1" maxlength="100" placeholder="Second organization entry..." />
+          </div>
+        </div>
+      </section>
+
+      
+      <section class="fs" id="fs-skills">
+        <div class="fs-head">
+          <span class="fs-num">07</span>
+          <h2 class="fs-title">Skills</h2>
+        </div>
+        <div id="skills-entries"></div>
+      </section>
+
+    </div>
+  </aside>
+
+  
+  <!-- Preview panel renders the CV page before export. -->
+  <section class="preview-panel" id="preview-panel">
+    <div class="preview-topbar">
+      <span class="preview-badge">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+        Live Preview
+      </span>
+      <span class="preview-note">The downloaded PDF will match this preview</span>
+    </div>
+
+    <div class="preview-area" id="preview-area">
+      <div class="cv-scaler" id="cv-scaler">
+
+        
+        <div class="cv-page" id="cv-page">
+
+          
+          <div class="cv-sidebar">
+            <div class="cv-sb-top">
+              
+              <div class="cv-photo-ring">
+                <img id="cv-photo" src="" alt="" class="cv-photo-img hidden" />
+                <div id="cv-photo-ph" class="cv-photo-ph">
+                  <svg class="cv-placeholder-art" viewBox="0 0 160 160" role="img" aria-label="Photo placeholder">
+                    <defs>
+                      <linearGradient id="ph-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c7f0ff"/><stop offset="1" stop-color="#eef9ff"/></linearGradient>
+                      <linearGradient id="ph-hill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c7df5a"/><stop offset="1" stop-color="#78a51b"/></linearGradient>
+                    </defs>
+                    <rect width="160" height="160" fill="url(#ph-sky)"/>
+                    <path d="M0 94 C35 82 61 93 91 84 C116 77 139 82 160 90 L160 160 L0 160 Z" fill="url(#ph-hill)"/>
+                    <path d="M0 118 C40 104 80 104 117 122 C134 130 148 137 160 139 L160 160 L0 160 Z" fill="#8db312"/>
+                    <g fill="#ffffff" opacity="0.95"><circle cx="73" cy="45" r="13"/><circle cx="91" cy="43" r="16"/><circle cx="108" cy="51" r="11"/><rect x="61" y="46" width="60" height="16" rx="8"/></g>
+                  </svg>
+                </div>
+              </div>
+              
+              <div class="cv-name" id="cv-name">FULL NAME</div>
+              
+              <div class="cv-sb-rule"></div>
+            </div>
+
+            
+            <div class="cv-contacts">
+              <div class="cv-contact-row">
+                <div class="cv-contact-icon">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                </div>
+                <span class="cv-contact-val" id="cv-email">email</span>
+              </div>
+              <div class="cv-contact-row">
+                <div class="cv-contact-icon">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.42C1.61 2.34 2.43 1.45 3.5 1.45h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.52-1.52a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <span class="cv-contact-val" id="cv-phone">phone number</span>
+              </div>
+              <div class="cv-contact-row">
+                <div class="cv-contact-icon cv-icon-text">in</div>
+                <span class="cv-contact-val" id="cv-linkedin">linkedin url</span>
+              </div>
+              <div class="cv-contact-row">
+                <div class="cv-contact-icon">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                </div>
+                <span class="cv-contact-val" id="cv-instagram">instagram username</span>
+              </div>
+            </div>
+
+          </div>
+
+          
+          <div class="cv-main">
+
+            
+            <div class="cv-section">
+              <div class="cv-sec-title">PROFILE</div>
+              <p class="cv-profile-text" id="cv-profile">Your professional summary will appear here after you fill in the form...</p>
+            </div>
+
+            
+            <div class="cv-section">
+              <div class="cv-sec-title">EXPERIENCE / PROJECTS</div>
+              <div id="cv-exp-list">
+                <p class="cv-empty">Add an experience or project using the form.</p>
+              </div>
+            </div>
+
+            
+            <div class="cv-section">
+              <div class="cv-sec-title">EDUCATION</div>
+              <ul class="cv-blist" id="cv-edu-list">
+                <li class="cv-empty">No education entries yet.</li>
+              </ul>
+            </div>
+
+            
+            <div class="cv-section" id="cv-org-section">
+              <div class="cv-sec-title">ORGANIZATIONS &amp; VOLUNTEER EXPERIENCE</div>
+              <ul class="cv-blist" id="cv-org-list">
+                <li class="cv-empty">No organization entries yet.</li>
+              </ul>
+            </div>
+
+            
+            <div class="cv-section">
+              <div class="cv-sec-title">SKILLS</div>
+              <ul class="cv-blist" id="cv-skills-list">
+                <li class="cv-empty">No skills added yet.</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<!-- Crop modal lets users adjust their uploaded photo. -->
+<div class="modal-backdrop hidden" id="crop-modal">
+  <div class="crop-dialog">
+    <div class="crop-dialog__head">
+      <div>
+        <h3 class="crop-dialog__title">Crop Photo</h3>
+        <p class="crop-dialog__sub">Drag to reposition · Scroll to zoom</p>
+      </div>
+      <button class="crop-close" id="crop-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="crop-dialog__body">
+      <div class="crop-wrap">
+        <img id="crop-image" src="" alt="crop" />
+      </div>
+    </div>
+    <div class="crop-dialog__foot">
+      <button class="btn-ghost" id="crop-cancel">Cancel</button>
+      <button class="btn-primary" id="crop-confirm">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Apply Crop
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
