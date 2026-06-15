@@ -1,6 +1,6 @@
 # SungJadi CV Generator
 
-SungJadi is a simple web-based CV generator that allows users to create a professional CV by filling in text fields and uploading a profile photo. The CV preview updates in real time and can be downloaded as a PDF.
+SungJadi (a wordplay on "Langsung Jadi", meaning instantly done) is a simple web-based CV generator that allows users to create a professional CV by filling in text fields and uploading a profile photo. The CV preview updates in real time and can be downloaded as a PDF.
 
 ## Features
 
