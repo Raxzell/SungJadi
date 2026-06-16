@@ -1,4 +1,3 @@
-
 'use strict';
 
 // Select elements and escape user input before inserting it into the preview.
@@ -450,12 +449,30 @@ btnDownload.addEventListener('click', async () => {
   const savedPageH = cvPage.style.height;
   const savedPageMinH = cvPage.style.minHeight;
 
+  // Store the current mobile tab state so it can be restored after export.
+  const savedFormHidden = formPanel.classList.contains('tab-hidden');
+  const savedPreviewHidden = previewPanel.classList.contains('tab-hidden');
+  const savedTabFormActive = tabForm.classList.contains('active');
+  const savedTabPreviewActive = tabPreview.classList.contains('active');
+
   try {
+    // Keep the preview panel visible while html2canvas captures the CV page.
+    formPanel.classList.add('tab-hidden');
+    previewPanel.classList.remove('tab-hidden');
+    tabForm.classList.remove('active');
+    tabPreview.classList.add('active');
+
     cvScaler.style.transform = 'none';
     cvScaler.style.height = 'auto';
     cvPage.style.width = `${CV_W}px`;
     cvPage.style.height = '1123px';
     cvPage.style.minHeight = '1123px';
+
+    // Wait until web fonts are ready before capturing the PDF layout.
+    if (document.fonts?.ready) {
+      await document.fonts.ready;
+    }
+
     await new Promise(r => setTimeout(r, 250));
 
     const rawName = inpName.value.trim() || 'FULL NAME';
@@ -516,6 +533,13 @@ btnDownload.addEventListener('click', async () => {
     cvPage.style.minHeight = savedPageMinH;
     cvScaler.style.transform = savedT;
     cvScaler.style.height = savedH;
+
+    // Restore the previous tab state after the PDF export finishes.
+    formPanel.classList.toggle('tab-hidden', savedFormHidden);
+    previewPanel.classList.toggle('tab-hidden', savedPreviewHidden);
+    tabForm.classList.toggle('active', savedTabFormActive);
+    tabPreview.classList.toggle('active', savedTabPreviewActive);
+
     scaleCV();
     overlay.remove();
     btnDownload.classList.remove('loading');
