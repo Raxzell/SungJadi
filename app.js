@@ -434,7 +434,7 @@ function scaleCV() {
 const ro = new ResizeObserver(scaleCV);
 ro.observe(previewArea);
 
-// Export the unscaled CV preview as one exact PDF page.
+// Export the CV from a fixed off-screen clone so mobile layout does not affect the PDF.
 btnDownload.addEventListener('click', async () => {
   const overlay = document.createElement('div');
   overlay.className = 'gen-overlay';
@@ -442,38 +442,12 @@ btnDownload.addEventListener('click', async () => {
   document.body.appendChild(overlay);
   btnDownload.classList.add('loading');
 
-  const savedT = cvScaler.style.transform;
-  const savedH = cvScaler.style.height;
-  const cvPage = $('cv-page');
-  const savedPageW = cvPage.style.width;
-  const savedPageH = cvPage.style.height;
-  const savedPageMinH = cvPage.style.minHeight;
-
-  // Store the current mobile tab state so it can be restored after export.
-  const savedFormHidden = formPanel.classList.contains('tab-hidden');
-  const savedPreviewHidden = previewPanel.classList.contains('tab-hidden');
-  const savedTabFormActive = tabForm.classList.contains('active');
-  const savedTabPreviewActive = tabPreview.classList.contains('active');
+  let exportWrap = null;
 
   try {
-    // Keep the preview panel visible while html2canvas captures the CV page.
-    formPanel.classList.add('tab-hidden');
-    previewPanel.classList.remove('tab-hidden');
-    tabForm.classList.remove('active');
-    tabPreview.classList.add('active');
-
-    cvScaler.style.transform = 'none';
-    cvScaler.style.height = 'auto';
-    cvPage.style.width = `${CV_W}px`;
-    cvPage.style.height = '1123px';
-    cvPage.style.minHeight = '1123px';
-
-    // Wait until web fonts are ready before capturing the PDF layout.
     if (document.fonts?.ready) {
       await document.fonts.ready;
     }
-
-    await new Promise(r => setTimeout(r, 250));
 
     const rawName = inpName.value.trim() || 'FULL NAME';
     const safeName = rawName.replace(/[\/:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim() || 'FULL NAME';
@@ -483,7 +457,40 @@ btnDownload.addEventListener('click', async () => {
     const jsPDFCtor = window.jspdf?.jsPDF || window.jsPDF;
     if (!jsPDFCtor) throw new Error('jsPDF is not loaded');
 
-    const canvas = await html2canvas(cvPage, {
+    const cvPage = $('cv-page');
+    const exportPage = cvPage.cloneNode(true);
+
+    exportPage.removeAttribute('id');
+    exportPage.style.width = `${CV_W}px`;
+    exportPage.style.height = '1123px';
+    exportPage.style.minHeight = '1123px';
+    exportPage.style.maxHeight = '1123px';
+    exportPage.style.transform = 'none';
+    exportPage.style.overflow = 'hidden';
+    exportPage.style.boxShadow = 'none';
+
+    const exportPhoto = exportPage.querySelector('#cv-photo');
+    if (exportPhoto && S.photo) {
+      exportPhoto.src = S.photo;
+      exportPhoto.style.display = 'block';
+      exportPhoto.classList.remove('hidden');
+    }
+
+    exportWrap = document.createElement('div');
+    exportWrap.style.position = 'fixed';
+    exportWrap.style.left = '-10000px';
+    exportWrap.style.top = '0';
+    exportWrap.style.width = `${CV_W}px`;
+    exportWrap.style.height = '1123px';
+    exportWrap.style.overflow = 'hidden';
+    exportWrap.style.background = '#ffffff';
+    exportWrap.style.zIndex = '-1';
+    exportWrap.appendChild(exportPage);
+    document.body.appendChild(exportWrap);
+
+    await new Promise(r => setTimeout(r, 250));
+
+    const canvas = await html2canvas(exportPage, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
@@ -496,21 +503,6 @@ btnDownload.addEventListener('click', async () => {
       imageTimeout: 20000,
       scrollX: 0,
       scrollY: 0,
-      onclone: doc => {
-        const clonedPage = doc.getElementById('cv-page');
-        if (clonedPage) {
-          clonedPage.style.width = `${CV_W}px`;
-          clonedPage.style.height = '1123px';
-          clonedPage.style.minHeight = '1123px';
-          clonedPage.style.overflow = 'hidden';
-          clonedPage.style.boxShadow = 'none';
-        }
-        const img = doc.getElementById('cv-photo');
-        if (img && S.photo) {
-          img.src = S.photo;
-          img.style.display = 'block';
-        }
-      },
     });
 
     const pdf = new jsPDFCtor({
@@ -528,19 +520,7 @@ btnDownload.addEventListener('click', async () => {
     console.error('PDF error:', err);
     alert(`Failed to generate the PDF: ${err.message || 'Unknown error'}. Please try again.`);
   } finally {
-    cvPage.style.width = savedPageW;
-    cvPage.style.height = savedPageH;
-    cvPage.style.minHeight = savedPageMinH;
-    cvScaler.style.transform = savedT;
-    cvScaler.style.height = savedH;
-
-    // Restore the previous tab state after the PDF export finishes.
-    formPanel.classList.toggle('tab-hidden', savedFormHidden);
-    previewPanel.classList.toggle('tab-hidden', savedPreviewHidden);
-    tabForm.classList.toggle('active', savedTabFormActive);
-    tabPreview.classList.toggle('active', savedTabPreviewActive);
-
-    scaleCV();
+    if (exportWrap) exportWrap.remove();
     overlay.remove();
     btnDownload.classList.remove('loading');
   }
